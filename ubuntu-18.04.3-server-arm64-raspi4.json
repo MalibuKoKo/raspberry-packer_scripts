@@ -7,6 +7,8 @@
             "boot_wait": "3m",
             "disk_interface": "virtio",
             "disk_size": 5000,
+            "disk_image": true,
+            "use_backing_file": true,
             "format": "qcow2",
             "headless": false,
             "iso_checksum": "{{user `sum_local`}}",
@@ -14,9 +16,13 @@
             "iso_url": "{{user `url_local`}}",
             "iso_target_extension": "img",
             "net_device": "virtio-net",
-            "output_directory": "hello_world",
+            "output_directory": "{{user `output_directory`}}",
             "qemu_binary": "qemu-system-aarch64",
             "qemuargs": [
+                [
+                    "-smp",
+                    "2"
+                ],
                 [
                     "-m",
                     "1024"
@@ -51,11 +57,7 @@
                 ],
                 [
                     "-netdev",
-                    "id=user.0,type=user"
-                ],
-                [
-                    "-net",
-                    "user,hostfwd=tcp::2223-:22"
+                    "user,id=user.0,hostfwd=tcp:127.0.0.1:2223-:22"
                 ],
                 [
                     "-device",
@@ -68,17 +70,25 @@
                 [
                     "-monitor",
                     "stdio"
+                ],
+                [
+                    "-drive",
+                    "file={{user `output_directory`}}/{{user `vm_name`}},if=virtio,cache=writeback,discard=ignore,format=qcow2,index=0"
+                ],
+                [
+                    "-drive",
+                    "file={{user `cloud_init_iso`}},if=virtio,format=raw,index=1"
                 ]
             ],
             "shutdown_command": "echo '{{user `password`}}'|sudo poweroff",
             "ssh_host_port_min": 2223,
             "ssh_host_port_max": 2223,
             "ssh_port": 22,
-            "ssh_password": "ubuntu",
-            "ssh_username": "ubuntu",
+            "ssh_password": "{{user `user`}}",
+            "ssh_username": "{{user `password`}}",
             "ssh_wait_timeout": "30m",
             "type": "qemu",
-            "vm_name": "ubuntu-18.04.3-server-arm64-raspi4",
+            "vm_name": "{{user `vm_name`}}",
             "vnc_port_min": 5900,
             "vnc_port_max": 5900
         }
@@ -94,12 +104,14 @@
         }
     ],
     "variables": {
-        "password": "raspberry",
-        "sum_local": "temporary",
         "url_local": "temporary",
-        "user": "pi",
-        "display" : "none",
+        "sum_local": "temporary",
         "kernel" : "temporary",
-        "init" : "temporary"
+        "initrd" : "temporary",
+        "user": "ubuntu",
+        "password": "ubuntu",
+        "cloud_init_iso": "cloud-data/cloud-init-ubuntu.img",
+        "output_directory": "hello_world",
+        "vm_name": "ubuntu-18.04.3-server-arm64-raspi4"
     }
 }
