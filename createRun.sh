@@ -1,2 +1,2 @@
 #!/bin/bash -x
-qemu-system-arm -m 1024M -sd $1 -M vexpress-a9 -cpu cortex-a9 -kernel $2 -initrd $3 -append "root=/dev/ram" -serial stdio -no-reboot
+qemu-system-aarch64 -m 1024M -drive file=$1,if=sd,cache=writeback,id=hd-root -device virtio-blk-device,drive=hd-root -M virt -cpu cortex-a53 -kernel $2 -initrd $3 -append "root=/dev/vda2" -serial stdio -no-reboot
