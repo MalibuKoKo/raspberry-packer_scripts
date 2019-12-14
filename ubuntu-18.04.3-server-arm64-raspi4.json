@@ -1,0 +1,105 @@
+{
+    "builders": [
+        {
+            "accelerator": "tcg",
+            "boot_command": [
+            ],
+            "boot_wait": "3m",
+            "disk_interface": "virtio",
+            "disk_size": 5000,
+            "format": "qcow2",
+            "headless": false,
+            "iso_checksum": "{{user `sum_local`}}",
+            "iso_checksum_type": "md5",
+            "iso_url": "{{user `url_local`}}",
+            "iso_target_extension": "img",
+            "net_device": "virtio-net",
+            "output_directory": "hello_world",
+            "qemu_binary": "qemu-system-aarch64",
+            "qemuargs": [
+                [
+                    "-m",
+                    "1024"
+                ],
+                [
+                    "-boot",
+                    "order=ncd"
+                ],
+                [
+                    "-machine",
+                    "virt,accel=tcg"
+                ],
+                [
+                    "-cpu",
+                    "cortex-a53"
+                ],
+                [
+                    "-kernel",
+                    "{{user `kernel`}}"
+                ],
+                [
+                    "-append",
+                    "root=/dev/vda2 mem=1024M devtmpfs.mount=0 rw vga=normal"
+                ],
+                [
+                    "-name",
+                    "Qemu-hello_world"
+                ],
+                [
+                    "-net",
+                    "nic,macaddr=00:16:3e:00:00:01"
+                ],
+                [
+                    "-netdev",
+                    "id=user.0,type=user"
+                ],
+                [
+                    "-net",
+                    "user,hostfwd=tcp::2223-:22"
+                ],
+                [
+                    "-device",
+                    "virtio-net-device,netdev=user.0"
+                ],
+                [
+                    "-initrd",
+                    "{{user `initrd`}}"
+                ],
+                [
+                    "-monitor",
+                    "stdio"
+                ]
+            ],
+            "shutdown_command": "echo '{{user `password`}}'|sudo poweroff",
+            "ssh_host_port_min": 2223,
+            "ssh_host_port_max": 2223,
+            "ssh_port": 22,
+            "ssh_password": "ubuntu",
+            "ssh_username": "ubuntu",
+            "ssh_wait_timeout": "30m",
+            "type": "qemu",
+            "vm_name": "ubuntu-18.04.3-server-arm64-raspi4",
+            "vnc_port_min": 5900,
+            "vnc_port_max": 5900
+        }
+    ],
+    "provisioners": [
+        {
+            "execute_command": "echo '{{user `password_acc`}}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+            "start_retry_timeout": "5m",
+            "scripts": [
+                "scripts/manage/update_upgrade.sh"
+            ],
+            "type": "shell"
+        }
+    ],
+    "variables": {
+        "password": "raspberry",
+        "sum_local": "temporary",
+        "url_local": "temporary",
+        "user": "pi",
+        "display" : "none",
+        "kernel" : "temporary",
+        "init" : "temporary"
+    }
+}
